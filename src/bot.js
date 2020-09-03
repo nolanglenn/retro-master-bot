@@ -32,13 +32,21 @@ client.on('message', (message) => {
                     'Accept': 'application/json',
                     'user-key': process.env.IGDB_USER_KEY
                 },
-                data: `fields name,first_release_date,platforms.name,cover,summary;search "${args}";`
+                data: `fields name,first_release_date,platforms.name,cover,summary;search "${args.join(' ')}";`
             })
             .then(response => {
                 console.log(response.data);
+                console.log(args);
+                // Convert Unix timestamp from release date to a readable format.
+                let timestamp = Number(new Date(response.data[0].first_release_date * 1000));
+                let date = new Date(timestamp).toDateString();
+    
+                return message.reply(`
+                **Game:** ${response.data[0].name} 
+                **Release:** ${date}`)
             })
             .catch(err => {
-                console.log('e:', err.toJSON());
+                console.log('e:', err);
             })
         }
     }
