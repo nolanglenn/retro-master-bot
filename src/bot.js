@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const { Client } = require('discord.js');
+const { Client, MessageEmbed } = require('discord.js');
 const axios = require('axios');
 const client = new Client();
 const PREFIX = '$';
@@ -36,14 +36,20 @@ client.on('message', (message) => {
             })
             .then(response => {
                 console.log(response.data);
-                console.log(args);
+                console.log(args.join(' '));
                 // Convert Unix timestamp from release date to a readable format.
                 let timestamp = Number(new Date(response.data[0].first_release_date * 1000));
                 let date = new Date(timestamp).toDateString();
-    
-                return message.reply(`
+                // Sends the response as an embeded message.
+                const embed = new MessageEmbed()
+                .setTitle('Game info:')
+                .setColor(0x1f436e)
+                .setDescription(`
                 **Game:** ${response.data[0].name} 
-                **Release:** ${date}`)
+                **Release:** ${date}
+                **Platform(s):** ${response.data[0].platforms.map(name => name.name).join(' / ')}`);
+
+                message.channel.send(embed);
             })
             .catch(err => {
                 console.log('e:', err);
